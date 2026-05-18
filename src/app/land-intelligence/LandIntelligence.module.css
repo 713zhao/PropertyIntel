@@ -1,0 +1,61 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.pageHeader h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.chartsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  gap: 2rem;
+}
+
+.caseStudy {
+  background: linear-gradient(135deg, var(--card-bg) 0%, rgba(56, 189, 248, 0.05) 100%);
+}
+
+.subtitle {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 2rem;
+}
+
+.biddingStats {
+  display: flex;
+  justify-content: space-around;
+  padding: 1rem 0;
+}
+
+.bidItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.bidLabel {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.bidValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+@media (max-width: 1000px) {
+  .chartsGrid {
+    grid-template-columns: 1fr;
+  }
+  .biddingStats {
+    flex-direction: column;
+    gap: 2rem;
+  }
+}

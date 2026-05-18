@@ -1,0 +1,8 @@
+requests
+pandas
+fastapi
+uvicorn
+python-multipart
+sqlalchemy
+pydantic
+python-dotenv
