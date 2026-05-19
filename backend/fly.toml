@@ -1,0 +1,18 @@
+app = "prop-intel-backend"
+primary_region = "sin"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+[mounts]
+  source = "prop_intel_data"
+  destination = "/app/data"
+
+[env]
+  PORT = "8080"
+  DATABASE_URL = "/app/data/property_data.db"

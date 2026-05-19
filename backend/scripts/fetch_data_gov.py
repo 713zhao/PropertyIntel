@@ -8,13 +8,17 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
 class DataGovFetcher:
     BASE_URL = "https://api-open.data.gov.sg/v1/public/api/datasets"
 
     def __init__(self, db_path=None):
         if db_path is None:
-            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            self.db_path = os.path.join(base_dir, "data", "property_data.db")
+            # Priority: ENV variable (for Fly.io volume) > Default local path
+            self.db_path = os.getenv("DATABASE_URL")
+            if not self.db_path:
+                base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                self.db_path = os.path.join(base_dir, "data", "property_data.db")
         else:
             self.db_path = db_path
 

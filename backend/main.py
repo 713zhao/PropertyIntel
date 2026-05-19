@@ -27,7 +27,8 @@ app.add_middleware(
 import os
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(base_dir, "data", "property_data.db")
+# Priority: ENV variable (for Fly.io volume) > Default local path
+DB_PATH = os.getenv("DATABASE_URL", os.path.join(base_dir, "data", "property_data.db"))
 
 
 def get_db_connection():

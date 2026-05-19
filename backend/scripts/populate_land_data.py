@@ -2,7 +2,7 @@ import sqlite3
 import os
 
 base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-db_path = os.path.join(base_dir, "data", "property_data.db")
+db_path = os.getenv("DATABASE_URL", os.path.join(base_dir, "data", "property_data.db"))
 
 
 def populate():
