@@ -5,12 +5,14 @@ import { useLanguage } from '@/context/LanguageContext';
 import ChartCard from '@/components/dashboard/ChartCard';
 import { RefreshCw, Clock, Calendar, Activity } from 'lucide-react';
 import styles from './MacroAnalysis.module.css';
+import { API_BASE_URL } from '@/config/api';
 
 export default function MacroAnalysis() {
   const { t, language } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
   const [liveData, setLiveData] = useState<any>(null);
+  const [volumeData, setVolumeData] = useState<any[]>([]);
   const [activeMacroTab, setActiveMacroTab] = useState<'gdp' | 'unemployment'>('gdp');
 
   const fetchData = async (forceRefresh = false) => {
@@ -21,11 +23,18 @@ export default function MacroAnalysis() {
     }
 
     try {
-      const url = forceRefresh ? '/api/macro-live?refresh=true' : '/api/macro-live';
+      const url = forceRefresh ? `${API_BASE_URL}/api/macro-live?refresh=true` : `${API_BASE_URL}/api/macro-live`;
       const res = await fetch(url);
       const data = await res.json();
       if (data && data.data) {
         setLiveData(data);
+      }
+      
+      // Fetch volume data
+      const volRes = await fetch(`${API_BASE_URL}/api/transaction-volume`);
+      const volData = await volRes.json();
+      if (Array.isArray(volData)) {
+        setVolumeData(volData);
       }
     } catch (err) {
       console.error('Error fetching live macro data:', err);
@@ -423,6 +432,61 @@ export default function MacroAnalysis() {
     ]
   };
 
+  // 4.5 Monthly (Quarterly) Transaction Volume Option
+  const volQuarters = volumeData.map(d => d.quarter);
+  const newSaleLabel = language === 'zh' ? '新房销售' : 'New Sale';
+  const resaleLabel = language === 'zh' ? '转售' : 'Resale';
+  const subSaleLabel = language === 'zh' ? '转让' : 'Sub Sale';
+
+  const volumeOption = {
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+    legend: { 
+      data: [newSaleLabel, resaleLabel, subSaleLabel],
+      bottom: 0 
+    },
+    grid: { left: '3%', right: '4%', bottom: '15%', containLabel: true },
+    xAxis: { 
+      type: 'category', 
+      data: volQuarters,
+      axisLine: { lineStyle: { color: '#94a3b8' } }
+    },
+    yAxis: { 
+      type: 'value', 
+      name: language === 'zh' ? '单元数' : 'Units',
+      axisLine: { lineStyle: { color: '#94a3b8' } }
+    },
+    series: [
+      {
+        name: newSaleLabel,
+        type: 'bar',
+        stack: 'volume',
+        data: volumeData.map(d => ({
+          value: d.new_sale,
+          itemStyle: d.is_forecast ? { opacity: 0.6, borderType: 'dashed', borderWidth: 1, borderColor: '#3b82f6' } : { color: '#3b82f6' }
+        }))
+      },
+      {
+        name: resaleLabel,
+        type: 'bar',
+        stack: 'volume',
+        data: volumeData.map(d => ({
+          value: d.resale,
+          itemStyle: d.is_forecast ? { opacity: 0.6, borderType: 'dashed', borderWidth: 1, borderColor: '#10b981' } : { color: '#10b981' }
+        }))
+      },
+      {
+        name: subSaleLabel,
+        type: 'bar',
+        stack: 'volume',
+        data: volumeData.map(d => ({
+          value: d.sub_sale,
+          itemStyle: d.is_forecast ? { opacity: 0.6, borderType: 'dashed', borderWidth: 1, borderColor: '#f59e0b' } : { color: '#f59e0b' }
+        })),
+        itemStyle: { borderRadius: [4, 4, 0, 0] }
+      }
+    ]
+  };
+
   // 5. URA Pipeline Option
   const pipelineData = liveData?.data?.pipeline || { 
     ccr: { immediate: 0, medium: 0 }, 
@@ -552,6 +616,12 @@ export default function MacroAnalysis() {
           title={t('macro.chartLaunches')}
           subtitle={t('macro.chartLaunchesSub')}
           option={launchesOption}
+        />
+
+        <ChartCard 
+          title={language === 'zh' ? '季度交易量分布 (包含预测)' : 'Quarterly Transaction Volume (Incl. Forecast)'}
+          subtitle={language === 'zh' ? '分析新房、转售与转让市场的交易贡献' : 'Breakdown of New Sale, Resale, and Sub Sale volume'}
+          option={volumeOption}
         />
 
         <ChartCard 

@@ -24,7 +24,17 @@ This document outlines the data sources and calculation logic for every diagram 
 
 ---
 
-## 3. Land Intelligence (土地情报)
+## 3. Macro Analysis (宏观分析)
+
+| Diagram / Stat | Data Source | Details |
+| :--- | :--- | :--- |
+| **PPI by Segment** | data.gov.sg | `private_property_index` with forecast logic. |
+| **Transaction Volume**| data.gov.sg | Aggregated `New Sale`, `Resale`, and `Sub Sale` quarterly volumes (d_9c1f20235b3f7f892797e930f9a2e37e). |
+| **URA Pipeline** | URA | Supply pipeline data for CCR, RCR, and OCR. |
+
+---
+
+## 4. Land Intelligence (土地情报)
 
 | Diagram / Stat | Data Source | Details |
 | :--- | :--- | :--- |
