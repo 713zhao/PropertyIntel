@@ -8,6 +8,7 @@ import datetime
 import re
 import urllib.request
 import urllib.error
+import urllib.parse
 import ssl
 from dotenv import load_dotenv
 
@@ -225,7 +226,7 @@ def get_new_launches():
 
 
 @app.get("/api/transactions")
-def get_transactions(limit: int = 100):
+def get_transactions(project: Optional[str] = None, limit: int = 100):
     conn = get_db_connection()
     try:
         # Check if ura_transactions exists
@@ -234,7 +235,13 @@ def get_transactions(limit: int = 100):
             "SELECT name FROM sqlite_master WHERE type='table' AND name='ura_transactions'"
         )
         if cursor.fetchone():
-            query = f"SELECT project, price, 'N/A' as profit, transaction_date as date FROM ura_transactions ORDER BY transaction_date DESC LIMIT {limit}"
+            query = f"SELECT project, price, 'N/A' as profit, transaction_date as date, 1000 as size_sqft FROM ura_transactions WHERE 1=1"
+            params = []
+            if project:
+                query += " AND project LIKE ?"
+                params.append(f"%{project}%")
+            query += f" ORDER BY transaction_date DESC LIMIT {limit}"
+            df = pd.read_sql_query(query, conn, params=params)
         else:
             # Fallback to HDB transactions for benchmarking
             # We combine Block + Street Name + Town to show a more descriptive "Project/Location"
@@ -242,14 +249,22 @@ def get_transactions(limit: int = 100):
                 SELECT (block || ' ' || street_name || ' (' || town || ')') as project, 
                        resale_price as price, 
                        'N/A' as profit, 
-                       month as date 
+                       month as date,
+                       (floor_area_sqm * 10.7639) as size_sqft,
+                       town
                 FROM hdb_transactions 
-                WHERE month = (SELECT MAX(month) FROM hdb_transactions)
-                ORDER BY resale_price DESC
-                LIMIT {limit}
+                WHERE 1=1
             """
+            params = []
+            if project:
+                query += " AND (street_name LIKE ? OR town LIKE ? OR project LIKE ?)"
+                params.extend([f"%{project}%", f"%{project}%", f"%{project}%"])
+            else:
+                query += " AND month = (SELECT MAX(month) FROM hdb_transactions)"
 
-        df = pd.read_sql_query(query, conn)
+            query += f" ORDER BY resale_price DESC LIMIT {limit}"
+            df = pd.read_sql_query(query, conn, params=params)
+
         return df.to_dict(orient="records")
     except Exception as e:
         return {"error": str(e)}
@@ -374,6 +389,8 @@ def fetch_json_live(url, label=""):
 
 
 def datagov_live(dataset_id, limit=40, sort="quarter desc"):
+    import urllib.parse
+
     url = (
         f"https://data.gov.sg/api/action/datastore_search"
         f"?resource_id={dataset_id}&limit={limit}&sort={urllib.parse.quote(sort)}"
@@ -671,4 +688,4 @@ def get_macro_live(refresh: bool = Query(False)):
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8002)
