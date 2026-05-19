@@ -5,12 +5,14 @@ import { useLanguage } from '@/context/LanguageContext';
 import styles from './PolicyBenchmarks.module.css';
 import { ShieldCheck, Calendar, Users, Zap } from 'lucide-react';
 
+import { API_BASE_URL } from '@/config/api';
+
 export default function PolicyBenchmarks() {
   const { t, language } = useLanguage();
   const [topTrans, setTopTrans] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch('/api/transactions?limit=20')
+    fetch(`${API_BASE_URL}/api/transactions?limit=20`)
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {

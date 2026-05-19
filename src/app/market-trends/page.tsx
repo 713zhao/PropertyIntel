@@ -4,13 +4,14 @@ import { useEffect, useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import ChartCard from '@/components/dashboard/ChartCard';
 import styles from './MarketTrends.module.css';
+import { API_BASE_URL } from '@/config/api';
 
 export default function MarketTrends() {
   const { t, language } = useLanguage();
   const [macroData, setMacroData] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch('/api/macro-insights')
+    fetch(`${API_BASE_URL}/api/macro-insights`)
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {

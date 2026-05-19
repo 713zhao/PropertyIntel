@@ -5,6 +5,7 @@ import { useLanguage } from '@/context/LanguageContext';
 import styles from './InvestmentStrategy.module.css';
 import { Search, Calculator, PieChart, Info, School, ShoppingBag, Train, TreePine } from 'lucide-react';
 import ReactECharts from 'echarts-for-react';
+import { API_BASE_URL } from '@/config/api';
 
 export default function InvestmentStrategy() {
   const { language } = useLanguage();
@@ -84,7 +85,7 @@ export default function InvestmentStrategy() {
     if (!project || project.length < 3) return;
     
     try {
-      const res = await fetch(`/api/transactions?project=${encodeURIComponent(project)}&limit=1`);
+      const res = await fetch(`${API_BASE_URL}/api/transactions?project=${encodeURIComponent(project)}&limit=1`);
       const data = await res.json();
       
       if (Array.isArray(data) && data.length > 0) {

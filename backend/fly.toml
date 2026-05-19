@@ -1,4 +1,4 @@
-app = "prop-intel-backend"
+app = "prop-intel-backend-713"
 primary_region = "sin"
 
 [http_service]

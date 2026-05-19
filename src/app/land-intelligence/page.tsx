@@ -5,12 +5,14 @@ import { useLanguage } from '@/context/LanguageContext';
 import ChartCard from '@/components/dashboard/ChartCard';
 import styles from './LandIntelligence.module.css';
 
+import { API_BASE_URL } from '@/config/api';
+
 export default function LandIntelligence() {
   const { t, language } = useLanguage();
   const [data, setData] = useState<any>({ gls_history: [], launch_correlation: [] });
 
   useEffect(() => {
-    fetch('/api/land-intelligence')
+    fetch(`${API_BASE_URL}/api/land-intelligence`)
       .then(res => res.json())
       .then(d => {
         if (d.gls_history) {

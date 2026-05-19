@@ -11,6 +11,7 @@ import {
   DollarSign 
 } from 'lucide-react';
 import styles from './page.module.css';
+import { API_BASE_URL } from '@/config/api';
 
 export default function Dashboard() {
   const { t, language } = useLanguage();
@@ -19,7 +20,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     // Fetch Macro Insights (contains both indices)
-    fetch('/api/macro-insights')
+    fetch(`${API_BASE_URL}/api/macro-insights`)
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
